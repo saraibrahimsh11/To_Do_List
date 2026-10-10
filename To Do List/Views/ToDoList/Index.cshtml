@@ -1,0 +1,106 @@
+﻿@model IEnumerable<ToDoList>
+<div class="container d-flex justify-content-center" style="margin-top: 60px;">
+    <div class="col-12 col-lg-8">
+
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="h3 mb-0">To Do List</h2>
+                    <a href="/ToDoList/Create" class="btn btn-success">Create</a>
+                </div>
+
+                <form class="d-flex align-items-center gap-2">
+                    <input class="form-control form-control-sm w-auto" type="date" name="SearchDate" />
+                    <button type="submit" class="btn btn-success btn-sm">Search</button>
+                </form>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th scope="col">Tiltle</th>
+                                <th scope="col">Description</th>
+                                <th scope="col">Deadline</th>
+                                <th scope="col">File</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <th>@item.Tiltle</th>
+                                    <td>@item.Description</td>
+                                    @if(item.Deadline <= DateTime.Now.AddHours(-24))
+                                    {
+                                        <td class="text-danger">@item.Deadline</td>
+                                    }
+                                    else
+                                    {
+                                        <td>@item.Deadline</td>
+                                    }
+
+                                    <td> <a href="/images/@item.FileUrl" class="btn btn-outline-success" download>download</a>   </td>
+
+                                    <td>
+                                        <a  href="/ToDoList/Update/@item.Id" type="button" class="btn btn-warning btn-sm">Edit</a>
+                                        <a href="/ToDoList/Delete/@item.Id" class="btn btn-danger btn-sm btn-delete">Delete</a>
+                                    </td>
+                                </tr>
+                            }
+                            
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<nav aria-label="Page navigation example" class="d-flex justify-content-center align-items-center mt-3">
+    <ul class="pagination">
+        <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
+            <a class="page-link" href="/ToDoList/Index?page=@(ViewBag.CurrentPage - 1)" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>
+
+        @for (var i = 0; i < ViewBag.TotalPages; i++)
+        {
+            <li class="page-item @(ViewBag.CurrentPage == i + 1 ? "active" : "")"><a class="page-link"
+   href="/ToDoList/Index?SearchDate=@Context.Request.Query["SearchDate"]&Page=@(i + 1)">@(i + 1)</a></li>
+        }
+        <li class="page-item @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
+            <a class="page-link" href="/ToDoList/Index?Page=@(ViewBag.CurrentPage + 1)" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+        </li>
+    </ul>
+</nav>
+
+<script>
+    document.querySelectorAll(".btn-delete").forEach(button => {
+        button.addEventListener("click", function (e) {
+            e.preventDefault();
+
+            const deleteUrl = this.href;
+
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, delete it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = deleteUrl;
+                }
+            });
+        });
+    });
+</script>
